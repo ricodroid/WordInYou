@@ -9,16 +9,13 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationView {
+            WordListView() // 🔹 ここで単語リストを表示
         }
-        .padding()
     }
 }
 
 #Preview {
     ContentView()
+        .environmentObject(WordStore()) // 🔹 プレビュー用に environmentObject を追加
 }
