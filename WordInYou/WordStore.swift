@@ -4,14 +4,26 @@
 //
 //  Created by riko on 2025/02/16.
 //
-
 import SwiftUI
 
 class WordStore: ObservableObject {
     @Published var words: [Word] = []
 
+    // 🔹 アプリが持っているデフォルト単語（センテンスなし）
+    private let defaultWords: [Word] = [
+        Word(word: "apple"),
+        Word(word: "book"),
+        Word(word: "friend"),
+        Word(word: "happy"),
+        Word(word: "travel")
+    ]
+
     init() {
         loadWords()
+        if words.isEmpty { // 🔹 初回起動時にデフォルト単語をセット
+            words = defaultWords
+            saveWords()
+        }
     }
 
     func addWord(_ word: Word) {
@@ -37,4 +49,3 @@ class WordStore: ObservableObject {
         NotificationManager.shared.scheduleNotification(for: randomWord)
     }
 }
-

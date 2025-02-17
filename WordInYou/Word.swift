@@ -10,6 +10,5 @@ import Foundation
 struct Word: Identifiable, Codable {
     var id: UUID = UUID()
     var word: String
-    var sentence: String?
-    var createdAt: Date = Date()
+    var sentence: String? = nil
 }

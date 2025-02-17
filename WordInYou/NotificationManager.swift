@@ -4,7 +4,6 @@
 //
 //  Created by riko on 2025/02/16.
 //
-
 import UserNotifications
 
 class NotificationManager {
@@ -21,14 +20,21 @@ class NotificationManager {
     func scheduleNotification(for word: Word) {
         let content = UNMutableNotificationContent()
         content.title = word.word
-        content.body = word.sentence ?? "Can you make a sentence using this word?"
-        content.sound = .default
+        
+        // 🔹 センテンスがない場合は入力を促す
+        if let sentence = word.sentence {
+            content.body = "Example: \(sentence)"
+        } else {
+            content.body = "Can you make a sentence using this word?"
+        }
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 60 * 60, repeats: false) // 1時間後
+        content.sound = .default
+        content.userInfo = ["word": word.word] // 🔹 通知タップ時に渡すデータ
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10, repeats: false) // 10秒後（テスト用）
 
         let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
 
         UNUserNotificationCenter.current().add(request)
     }
 }
-
