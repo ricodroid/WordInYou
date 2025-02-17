@@ -8,7 +8,7 @@ import SwiftUI
 
 class WordStore: ObservableObject {
     @Published var savedWords: [Word] = []
-    private let defaultWords: [Word] = [
+    let defaultWords: [Word] = [
         Word(word: "ability"),
         Word(word: "able"),
         Word(word: "about"),

@@ -5,6 +5,7 @@
 //  Created by riko on 2025/02/16.
 //
 import SwiftUI
+import UserNotifications
 
 struct ContentView: View {
     @EnvironmentObject var wordStore: WordStore
@@ -19,7 +20,6 @@ struct ContentView: View {
         NavigationStack {
             VStack {
                 if isSearching {
-                    // 検索バー
                     TextField("Search...", text: $searchText, onCommit: {
                         checkWordExists()
                     })
@@ -46,6 +46,17 @@ struct ContentView: View {
                         }
                     }
                     .scrollContentBackground(.hidden)
+                
+                // 🔹 「Add New Word」ボタンを復元
+                    NavigationLink(destination: AddWordView()) {
+                        Text("Add New Word")
+                            .frame(maxWidth: .infinity)
+                            .frame(height: 50)
+                            .background(Color.blue)
+                            .foregroundColor(.white)
+                            .cornerRadius(10)
+                            .padding()
+                    }
             }
             .background(Color(red: 0.9, green: 0.95, blue: 1.0))
             .navigationTitle("Word List")
@@ -78,6 +89,25 @@ struct ContentView: View {
             .navigationDestination(item: $newWord) { word in
                 AddWordView(prepopulatedWord: word)
             }
+            .navigationDestination(item: $selectedWord) { word in // 🔹 通知タップで遷移
+                AddSentenceView(word: word)
+            }
+        }
+        .onAppear {
+            checkForNotificationTap()
+        }
+    }
+
+    // 🔹 通知からのデータをチェックし、遷移処理を実行
+    private func checkForNotificationTap() {
+        UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+            for notification in notifications {
+                if let word = notification.request.content.userInfo["word"] as? String {
+                    DispatchQueue.main.async {
+                        selectedWord = word
+                    }
+                }
+            }
         }
     }
 
@@ -89,7 +119,6 @@ struct ContentView: View {
         }
     }
 }
-
 
 #Preview {
     let mockStore = WordStore()
