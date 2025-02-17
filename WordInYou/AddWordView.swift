@@ -8,9 +8,14 @@
 import SwiftUI
 
 struct AddWordView: View {
-    @State private var newWord = ""
+    @State private var newWord: String
     @State private var newSentence = ""
     @EnvironmentObject var wordStore: WordStore
+    @Environment(\.presentationMode) var presentationMode
+
+    init(prepopulatedWord: String = "") {
+        _newWord = State(initialValue: prepopulatedWord)
+    }
 
     var body: some View {
         VStack {
@@ -25,8 +30,7 @@ struct AddWordView: View {
             Button("Save") {
                 let word = Word(word: newWord, sentence: newSentence.isEmpty ? nil : newSentence)
                 wordStore.addWord(word: word)
-                newWord = ""
-                newSentence = ""
+                presentationMode.wrappedValue.dismiss() // 🔹 追加後に画面を閉じる
             }
             .padding()
             
@@ -38,6 +42,6 @@ struct AddWordView: View {
 }
 
 #Preview {
-    AddWordView()
-        .environmentObject(WordStore()) // 🔹 プレビュー用に environmentObject を追加
+    AddWordView(prepopulatedWord: "example")
+        .environmentObject(WordStore())
 }

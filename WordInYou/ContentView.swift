@@ -12,20 +12,24 @@ struct ContentView: View {
     @State private var isShowingAddSentence = false
     @State private var searchText: String = ""
     @State private var isSearching: Bool = false
+    @State private var isShowingAddWordAlert = false
+    @State private var newWord: String?
 
     var body: some View {
-        NavigationView {
+        NavigationStack {
             VStack {
                 if isSearching {
-                    // 🔹 検索バー（スムーズな表示/非表示）
-                    TextField("Search...", text: $searchText)
-                        .padding(15)
-                        .frame(height: 50)
-                        .background(Color.white)
-                        .cornerRadius(10)
-                        .shadow(radius: 2)
-                        .padding(.horizontal, 16)
-                        .transition(.move(edge: .top)) // 🔹 アニメーション付きで表示
+                    // 検索バー
+                    TextField("Search...", text: $searchText, onCommit: {
+                        checkWordExists()
+                    })
+                    .padding(15)
+                    .frame(height: 50)
+                    .background(Color.white)
+                    .cornerRadius(10)
+                    .shadow(radius: 2)
+                    .padding(.horizontal, 16)
+                    .transition(.move(edge: .top))
                 }
 
                 WordListView(searchText: $searchText)
@@ -37,7 +41,7 @@ struct ContentView: View {
                     }
                     .sheet(isPresented: $isShowingAddSentence) {
                         if let word = selectedWord {
-                            AddSentenceView(word: word) // ✅ `.environmentObject(wordStore)` をここに適用
+                            AddSentenceView(word: word)
                                 .environmentObject(wordStore)
                         }
                     }
@@ -63,9 +67,29 @@ struct ContentView: View {
                     }
                 }
             }
+            .alert("単語が見つかりません", isPresented: $isShowingAddWordAlert) {
+                Button("キャンセル", role: .cancel) {}
+                Button("Yes") {
+                    newWord = searchText
+                }
+            } message: {
+                Text("新しい単語を追加しますか？")
+            }
+            .navigationDestination(item: $newWord) { word in
+                AddWordView(prepopulatedWord: word)
+            }
+        }
+    }
+
+    // 🔹 単語が存在するかを確認し、見つからなかった場合にアラートを表示
+    private func checkWordExists() {
+        let wordExists = wordStore.combinedWords.contains { $0.word.lowercased() == searchText.lowercased() }
+        if !wordExists {
+            isShowingAddWordAlert = true
         }
     }
 }
+
 
 #Preview {
     let mockStore = WordStore()
