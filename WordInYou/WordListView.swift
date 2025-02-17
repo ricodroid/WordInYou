@@ -19,47 +19,56 @@ struct WordListView: View {
     }
 
     var body: some View {
-        VStack {
+        NavigationStack {
             List {
-                ForEach(filteredWords) { word in  // 🔹 `filteredWords` を表示
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text(word.word)
-                            .font(.system(size: 22, weight: .bold))
-                            .frame(maxWidth: .infinity, alignment: .leading)
-
-                        if let sentence = word.sentence {
-                            Text(sentence)
-                                .font(.subheadline)
-                                .foregroundColor(.gray)
-                                .frame(maxWidth: .infinity, alignment: .leading)
-                        } else {
-                            Text("No sentence yet.")
-                                .foregroundColor(.red)
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                ForEach(filteredWords) { word in
+                    ZStack {
+                        // 🔹 見えない NavigationLink を配置し、デフォルト矢印 (`>`) を削除
+                        NavigationLink(destination: AddSentenceView(word: word.word)) {
+                            EmptyView()
                         }
+                        .opacity(0) // 🔹 非表示にする
+
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(word.word)
+                                .font(.system(size: 22, weight: .bold))
+                                .frame(maxWidth: .infinity, alignment: .leading)
+
+                            if let sentence = word.sentence {
+                                Text(sentence)
+                                    .font(.subheadline)
+                                    .foregroundColor(.gray)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            } else {
+                                Text("No sentence yet.")
+                                    .foregroundColor(.red)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                        }
+                        .padding(16)
+                        .background(Color.white)
+                        .cornerRadius(10)
+                        .shadow(radius: 2)
                     }
-                    .padding(24)
-                    .frame(maxWidth: .infinity, minHeight: 80)
-                    .background(Color.white)
-                    .cornerRadius(10)
-                    .shadow(radius: 8)
                     .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets(top: 15, leading:15, bottom: 15, trailing: 15))
                 }
             }
             .scrollContentBackground(.hidden)
-
-            NavigationLink(destination: AddWordView()) {
-                Text("Add New Word")
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 35)
-                    .padding()
-                    .background(Color(red: 51/255, green: 51/255, blue: 51/255))
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-            }
-            .padding()
+            .background(Color(red: 0.9, green: 0.95, blue: 1.0))
         }
-        .background(Color(red: 0.9, green: 0.95, blue: 1.0))
-        .navigationTitle("Word List")
     }
+}
+
+#Preview {
+    let mockStore = WordStore()
+    mockStore.savedWords = [
+        Word(word: "Example", sentence: "This is an example sentence."),
+        Word(word: "Swift", sentence: "Swift is a powerful programming language."),
+        Word(word: "Design", sentence: "Good UI/UX design improves user experience."),
+        Word(word: "Code", sentence: nil) // 🔹 No sentence yet
+    ]
+
+    return WordListView(searchText: .constant(""))
+        .environmentObject(mockStore)
 }
