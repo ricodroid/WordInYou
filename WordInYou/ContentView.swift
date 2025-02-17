@@ -17,7 +17,7 @@ struct ContentView: View {
         NavigationView {
             VStack {
                 if isSearching {
-                    // 検索バー
+                    // 🔹 検索バー（スムーズな表示/非表示）
                     TextField("Search...", text: $searchText)
                         .padding(15)
                         .frame(height: 50)
@@ -25,6 +25,7 @@ struct ContentView: View {
                         .cornerRadius(10)
                         .shadow(radius: 2)
                         .padding(.horizontal, 16)
+                        .transition(.move(edge: .top)) // 🔹 アニメーション付きで表示
                 }
 
                 WordListView(searchText: $searchText)
@@ -36,7 +37,8 @@ struct ContentView: View {
                     }
                     .sheet(isPresented: $isShowingAddSentence) {
                         if let word = selectedWord {
-                            AddSentenceView(word: word)
+                            AddSentenceView(word: word) // ✅ `.environmentObject(wordStore)` をここに適用
+                                .environmentObject(wordStore)
                         }
                     }
                     .scrollContentBackground(.hidden)
@@ -52,14 +54,13 @@ struct ContentView: View {
                         }
                     }) {
                         Image(systemName: "magnifyingglass")
-                            .font(.system(size: 20))
+                            .font(.system(size: 22))
                             .foregroundColor(.white)
-                            .frame(width: 60, height: 70)
+                            .frame(width: 50, height: 50)
                             .background(Color(red: 51/255, green: 51/255, blue: 51/255))
-                            .cornerRadius(10)
+                            .clipShape(RoundedRectangle(cornerRadius: 10))
                             .shadow(radius: 4)
                     }
-
                 }
             }
         }
@@ -68,7 +69,7 @@ struct ContentView: View {
 
 #Preview {
     let mockStore = WordStore()
-    mockStore.words = [
+    mockStore.savedWords = [
         Word(word: "Apple", sentence: "This is an apple."),
         Word(word: "Banana", sentence: "Bananas are yellow."),
         Word(word: "Cherry", sentence: "I like cherries."),

@@ -6,25 +6,22 @@
 //
 import SwiftUI
 
-import SwiftUI
-
 struct WordListView: View {
     @EnvironmentObject var wordStore: WordStore
-    @Binding var searchText: String // 🔹 検索用のバインディング変数
+    @Binding var searchText: String
 
-    // 🔹 検索結果を反映したリスト
     var filteredWords: [Word] {
         if searchText.isEmpty {
-            return wordStore.words
+            return wordStore.combinedWords
         } else {
-            return wordStore.words.filter { $0.word.localizedCaseInsensitiveContains(searchText) }
+            return wordStore.combinedWords.filter { $0.word.localizedCaseInsensitiveContains(searchText) }
         }
     }
 
     var body: some View {
         VStack {
             List {
-                ForEach(filteredWords) { word in // 🔹 検索結果を表示
+                ForEach(filteredWords) { word in  // 🔹 `filteredWords` を表示
                     VStack(alignment: .leading, spacing: 8) {
                         Text(word.word)
                             .font(.system(size: 22, weight: .bold))

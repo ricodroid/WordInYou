@@ -12,66 +12,64 @@ struct AddSentenceView: View {
     @State private var sentence = ""
     @State private var isEditing = false
 
-    // body には View を一つ返す
     var body: some View {
-        // Vstack 縦並び HStack 横並び ZStack 重ねる
         VStack {
+            // 🔹 単語を大きく表示（見出し）
             Text(word)
                 .font(.system(size: 32, weight: .bold))
                 .foregroundColor(.black)
                 .padding()
                 .underline()
-                .cornerRadius(10)
                 .shadow(radius: 5)
 
+            // 🔹 編集モードの切り替え
             if isEditing {
                 TextField("Enter a sentence", text: $sentence)
-                    .frame(width: 290, height: 400, alignment: .top)
-                    .multilineTextAlignment(.center)
-                    .padding()
+                    .padding(20)
+                    .frame(width: 290, height: 200, alignment: .top)
                     .background(Color.green.opacity(0.2))
                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 1))
                     .cornerRadius(10)
+                    .multilineTextAlignment(.center)
             } else {
                 Text(sentence.isEmpty ? "No sentence available" : sentence)
-                    .frame(width: 290, height: 400, alignment: .top)
-                    .multilineTextAlignment(.center)
-                    .padding()
+                    .padding(20)
+                    .frame(width: 290, height: 200, alignment: .top)
                     .background(Color.blue.opacity(0.2))
                     .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.gray, lineWidth: 1))
                     .cornerRadius(10)
-            }
-            
-            ZStack {
-                VStack {
-                    Spacer() // 上部にスペースを作る
-                    HStack {
-                        Spacer() // 左側にスペースを作る
-                        Button(action: {
-                            withAnimation {
-                                isEditing.toggle()
-                            }
-                        }) {
-                            Image(systemName: isEditing ? "checkmark" : "pencil")
-                                .font(.title)
-                                .foregroundColor(.white)
-                                .padding(20)
-                                .background(isEditing ? Color.green : Color.blue)
-                                .clipShape(Circle())
-                                .shadow(radius: 5)
-                        }
-                        .padding()
-                    }
-                }
+                    .multilineTextAlignment(.center)
             }
             
             Spacer()
+
+            // 🔹 右下に編集ボタンを配置
+            HStack {
+                Spacer()
+                Button(action: {
+                    withAnimation {
+                        if isEditing {
+                            wordStore.updateSentence(for: word, sentence: sentence) // 🔹 センテンスを保存
+                        }
+                        isEditing.toggle()
+                    }
+                }) {
+                    Image(systemName: isEditing ? "checkmark" : "pencil")
+                        .font(.title)
+                        .foregroundColor(.white)
+                        .padding(20)
+                        .background(isEditing ? Color.green : Color.blue)
+                        .clipShape(Circle())
+                        .shadow(radius: 5)
+                }
+                .padding()
+            }
         }
         .padding()
         .onAppear {
-            // 既存のセンテンスを表示
-            if let index = wordStore.words.firstIndex(where: { $0.word == word }) {
-                sentence = wordStore.words[index].sentence ?? ""
+            // 🔹 既存のセンテンスを取得（保存されている場合）
+            if let existingSentence = wordStore.combinedWords.first(where: { $0.word == word })?.sentence {
+                sentence = existingSentence
             }
         }
     }
@@ -79,7 +77,7 @@ struct AddSentenceView: View {
 
 #Preview {
     let mockStore = WordStore()
-    mockStore.words = [Word(word: "example", sentence: "This is an example sentence.")]
+    mockStore.savedWords = [Word(word: "example", sentence: "This is an example sentence.")]
 
     return AddSentenceView(word: "example")
         .environmentObject(mockStore)

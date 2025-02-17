@@ -24,7 +24,7 @@ struct AddWordView: View {
             
             Button("Save") {
                 let word = Word(word: newWord, sentence: newSentence.isEmpty ? nil : newSentence)
-                wordStore.addWord(word)
+                wordStore.addWord(word: word)
                 newWord = ""
                 newSentence = ""
             }

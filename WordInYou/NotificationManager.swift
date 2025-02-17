@@ -44,7 +44,8 @@ class NotificationManager {
 
     // 🔹 10分ごとにランダムな単語を通知する（1つだけ）
     func scheduleRepeatedNotifications(wordStore: WordStore) {
-        guard let randomWord = wordStore.words.randomElement() else { return }
+        guard let randomWord = wordStore.combinedWords.randomElement() else { return }
         scheduleNotification(for: randomWord)
     }
+
 }
