@@ -4,7 +4,6 @@
 //
 //  Created by riko on 2025/02/16.
 //
-
 import SwiftUI
 
 struct AddSentenceView: View {
@@ -29,8 +28,9 @@ struct AddSentenceView: View {
                 }
             }
             .padding()
+            
+            Spacer()
         }
         .padding()
     }
 }
-
