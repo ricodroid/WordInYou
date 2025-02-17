@@ -6,41 +6,63 @@
 //
 import SwiftUI
 
+import SwiftUI
+
 struct WordListView: View {
     @EnvironmentObject var wordStore: WordStore
+    @Binding var searchText: String // 🔹 検索用のバインディング変数
+
+    // 🔹 検索結果を反映したリスト
+    var filteredWords: [Word] {
+        if searchText.isEmpty {
+            return wordStore.words
+        } else {
+            return wordStore.words.filter { $0.word.localizedCaseInsensitiveContains(searchText) }
+        }
+    }
 
     var body: some View {
         VStack {
-            List(wordStore.words) { word in
-                VStack(alignment: .leading) {
-                    Text(word.word)
-                        .font(.headline)
-                    if let sentence = word.sentence {
-                        Text(sentence)
-                            .font(.subheadline)
-                            .foregroundColor(.gray)
-                    } else {
-                        Text("No sentence yet.")
-                            .foregroundColor(.red)
+            List {
+                ForEach(filteredWords) { word in // 🔹 検索結果を表示
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(word.word)
+                            .font(.system(size: 22, weight: .bold))
+                            .frame(maxWidth: .infinity, alignment: .leading)
+
+                        if let sentence = word.sentence {
+                            Text(sentence)
+                                .font(.subheadline)
+                                .foregroundColor(.gray)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        } else {
+                            Text("No sentence yet.")
+                                .foregroundColor(.red)
+                                .frame(maxWidth: .infinity, alignment: .leading)
+                        }
                     }
+                    .padding(24)
+                    .frame(maxWidth: .infinity, minHeight: 80)
+                    .background(Color.white)
+                    .cornerRadius(10)
+                    .shadow(radius: 8)
+                    .listRowBackground(Color.clear)
                 }
             }
-            
+            .scrollContentBackground(.hidden)
+
             NavigationLink(destination: AddWordView()) {
                 Text("Add New Word")
                     .frame(maxWidth: .infinity)
+                    .frame(height: 35)
                     .padding()
-                    .background(Color.blue)
+                    .background(Color(red: 51/255, green: 51/255, blue: 51/255))
                     .foregroundColor(.white)
                     .cornerRadius(10)
             }
             .padding()
         }
+        .background(Color(red: 0.9, green: 0.95, blue: 1.0))
         .navigationTitle("Word List")
     }
-}
-
-#Preview {
-    WordListView()
-        .environmentObject(WordStore()) // 🔹 プレビュー用に environmentObject を追加
 }
