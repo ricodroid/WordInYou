@@ -18,40 +18,54 @@ struct WordListView: View {
         }
     }
 
+    var groupedWords: [[Word]] {
+        stride(from: 0, to: filteredWords.count, by: 10).map { startIndex in
+            let endIndex = min(startIndex + 10, filteredWords.count)
+            return Array(filteredWords[startIndex..<endIndex])
+        }
+    }
+
     var body: some View {
         NavigationStack {
             List {
-                ForEach(filteredWords) { word in
-                    ZStack {
-                        // 🔹 見えない NavigationLink を配置し、デフォルト矢印 (`>`) を削除
-                        NavigationLink(destination: AddSentenceView(word: word.word)) {
-                            EmptyView()
-                        }
-                        .opacity(0) // 🔹 非表示にする
+                ForEach(Array(groupedWords.enumerated()), id: \.offset) { index, group in
+                    Section(header: Text("\(index * 10 + 1) ~ \(min((index + 1) * 10, filteredWords.count))")
+                        .font(.headline)
+                        .foregroundColor(.black)
+                        .padding(.top, 10)
+                    ) {
+                        ForEach(group) { word in
+                            ZStack {
+                                NavigationLink(destination: AddSentenceView(word: word.word)) {
+                                    EmptyView()
+                                }
+                                .opacity(0) // 🔹 非表示にする
 
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text(word.word)
-                                .font(.system(size: 22, weight: .bold))
-                                .frame(maxWidth: .infinity, alignment: .leading)
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(word.word)
+                                        .font(.system(size: 22, weight: .bold))
+                                        .frame(maxWidth: .infinity, alignment: .leading)
 
-                            if let sentence = word.sentence {
-                                Text(sentence)
-                                    .font(.subheadline)
-                                    .foregroundColor(.gray)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
-                            } else {
-                                Text("No sentence yet.")
-                                    .foregroundColor(.red)
-                                    .frame(maxWidth: .infinity, alignment: .leading)
+                                    if let sentence = word.sentence {
+                                        Text(sentence)
+                                            .font(.subheadline)
+                                            .foregroundColor(.gray)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    } else {
+                                        Text("No sentence yet.")
+                                            .foregroundColor(.red)
+                                            .frame(maxWidth: .infinity, alignment: .leading)
+                                    }
+                                }
+                                .padding(16)
+                                .background(Color.white)
+                                .cornerRadius(10)
+                                .shadow(radius: 2)
                             }
+                            .listRowBackground(Color.clear)
+                            .listRowInsets(EdgeInsets(top: 15, leading: 15, bottom: 15, trailing: 15))
                         }
-                        .padding(16)
-                        .background(Color.white)
-                        .cornerRadius(10)
-                        .shadow(radius: 2)
                     }
-                    .listRowBackground(Color.clear)
-                    .listRowInsets(EdgeInsets(top: 15, leading:15, bottom: 15, trailing: 15))
                 }
             }
             .scrollContentBackground(.hidden)
@@ -62,12 +76,9 @@ struct WordListView: View {
 
 #Preview {
     let mockStore = WordStore()
-    mockStore.savedWords = [
-        Word(word: "Example", sentence: "This is an example sentence."),
-        Word(word: "Swift", sentence: "Swift is a powerful programming language."),
-        Word(word: "Design", sentence: "Good UI/UX design improves user experience."),
-        Word(word: "Code", sentence: nil) // 🔹 No sentence yet
-    ]
+    mockStore.savedWords = (1...30).map { i in
+        Word(word: "Word \(i)", sentence: i % 2 == 0 ? "Example sentence \(i)" : nil)
+    }
 
     return WordListView(searchText: .constant(""))
         .environmentObject(mockStore)
