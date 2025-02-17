@@ -10,7 +10,7 @@ import SwiftUI
 struct AddWordView: View {
     @State private var newWord = ""
     @State private var newSentence = ""
-    @EnvironmentObject var wordStore: WordStore // 🔹 環境オブジェクトを使用
+    @EnvironmentObject var wordStore: WordStore
 
     var body: some View {
         VStack {

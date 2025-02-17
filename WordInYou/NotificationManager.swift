@@ -4,6 +4,12 @@
 //
 //  Created by riko on 2025/02/16.
 //
+//
+//  NotificationManager.swift
+//  WordInYou
+//
+//  Created by riko on 2025/02/16.
+//
 import UserNotifications
 
 class NotificationManager {
@@ -22,27 +28,23 @@ class NotificationManager {
         content.title = word.word
 
         // 🔹 センテンスがない場合は入力を促す
-        if let sentence = word.sentence {
-            content.body = "Example: \(sentence)"
-        } else {
-            content.body = "Can you make a sentence using this word?"
-        }
-
+        content.body = word.sentence?.isEmpty == false ? "Example: \(word.sentence!)" : "Can you make a sentence using this word?"
+        
         content.sound = .default
         content.userInfo = ["word": word.word] // 通知タップ時に渡すデータ
 
-        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 600, repeats: true) // 🔹 1分ごとに通知
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 600, repeats: false) // 🔹 10分後に1回だけ通知
 
-        let request = UNNotificationRequest(identifier: UUID().uuidString, content: content, trigger: trigger)
+        let request = UNNotificationRequest(identifier: "word_notification", content: content, trigger: trigger)
 
+        // 🔹 既存の通知を削除してから新しい通知をスケジュール
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
         UNUserNotificationCenter.current().add(request)
     }
 
-    // 🔹 1分ごとにランダムな単語を通知する
+    // 🔹 10分ごとにランダムな単語を通知する（1つだけ）
     func scheduleRepeatedNotifications(wordStore: WordStore) {
-        UNUserNotificationCenter.current().removeAllPendingNotificationRequests() // 既存の通知をクリア
-        if let randomWord = wordStore.words.randomElement() {
-            scheduleNotification(for: randomWord)
-        }
+        guard let randomWord = wordStore.words.randomElement() else { return }
+        scheduleNotification(for: randomWord)
     }
 }
