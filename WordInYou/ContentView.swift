@@ -36,7 +36,6 @@ struct ContentView: View {
                     .onReceive(NotificationCenter.default.publisher(for: .showSentenceInput)) { notification in
                         if let word = notification.object as? String {
                             selectedWord = word
-                            isShowingAddSentence = true
                         }
                     }
                     .sheet(isPresented: $isShowingAddSentence) {
@@ -105,10 +104,25 @@ struct ContentView: View {
                 if let word = notification.request.content.userInfo["word"] as? String {
                     DispatchQueue.main.async {
                         selectedWord = word
+                        // 🔹 `navigationDestination` で直接遷移させるために `isShowingAddSentence` を使わない
                     }
                 }
             }
         }
+    }
+    
+    // 🔹 `userNotificationCenter(_:didReceive:withCompletionHandler:)` の修正
+    func userNotificationCenter(
+        _ center: UNUserNotificationCenter,
+        didReceive response: UNNotificationResponse,
+        withCompletionHandler completionHandler: @escaping () -> Void
+    ) {
+        if let word = response.notification.request.content.userInfo["word"] as? String {
+            DispatchQueue.main.async {
+                NotificationCenter.default.post(name: .showSentenceInput, object: word)
+            }
+        }
+        completionHandler()
     }
 
     // 🔹 単語が存在するかを確認し、見つからなかった場合にアラートを表示
