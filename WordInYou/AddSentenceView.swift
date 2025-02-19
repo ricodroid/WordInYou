@@ -5,12 +5,27 @@
 //  Created by riko on 2025/02/16.
 //
 import SwiftUI
+import Lottie
 
 struct AddSentenceView: View {
     @EnvironmentObject var wordStore: WordStore
     let word: String
     @State private var sentence = ""
     @State private var isEditing = false
+    let animationFiles = [
+        "lottie-anime1",
+        "lottie-anime2",
+        "lottie-anime3",
+        "lottie-anime4",
+        "lottie-anime5",
+        "lottie-anime6",
+        "lottie-anime7",
+        "lottie-anime8",
+        "lottie-anime9",
+        "lottie-anime10"
+        
+    ]
+    @State private var selectedAnimation: String = ""
 
     var body: some View {
         VStack {
@@ -43,13 +58,22 @@ struct AddSentenceView: View {
             
             Spacer()
 
-            // 🔹 右下に編集ボタンを配置
+            LottieView(filename: selectedAnimation, loopMode: .loop)
+                .frame(height: 20)
+                .scaleEffect(0.4)
+                .onAppear {
+                    selectedAnimation = animationFiles.randomElement() ?? "lottie-anime1"
+                    print("Selected animation: \(selectedAnimation)")
+                }
+            
+            Spacer()
+            
             HStack {
                 Spacer()
                 Button(action: {
                     withAnimation {
                         if isEditing {
-                            wordStore.updateSentence(for: word, sentence: sentence) // 🔹 センテンスを保存
+                            wordStore.updateSentence(for: word, sentence: sentence)
                         }
                         isEditing.toggle()
                     }
