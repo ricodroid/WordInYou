@@ -59,15 +59,36 @@ struct ContentView: View {
                         }
                         .scrollContentBackground(.hidden)
                     
-                    NavigationLink(destination: AddWordView()) {
-                        Text("Add New Word")
-                            .frame(maxWidth: .infinity)
-                            .frame(height: 50)
-                            .background(Color(red: 51/255, green: 51/255, blue: 51/255))
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                            .padding()
+                    HStack(spacing: 16) { // 🔹 横並びにする
+                        NavigationLink(destination: AddWordView()) {
+                            Text("Add New Word")
+                                .frame(maxWidth: .infinity)
+                                .frame(height: 50)
+                                .background(Color(red: 51/255, green: 51/255, blue: 51/255))
+                                .foregroundColor(.white)
+                                .cornerRadius(10)
+                                .padding()
+                        }
+
+                        Button(action: {
+                            withAnimation {
+                                isSearching.toggle()
+                                if !isSearching { searchText = "" }
+                            }
+                        }) {
+                            Image(systemName: "magnifyingglass")
+                                .font(.system(size: 22))
+                                .foregroundColor(.white)
+                                .frame(width: 60, height: 60)
+                                .background(Color(red: 51/255, green: 51/255, blue: 51/255))
+                                .clipShape(Circle())
+                                .shadow(radius: 4)
+                                .padding()
+                        }
                     }
+                    .frame(maxWidth: .infinity) // 🔹 HStack を画面幅いっぱいに
+                    .padding(.horizontal, 16) // 🔹 左右の余白を追加
+
                 }
                 .background(Color(red: 0.9, green: 0.95, blue: 1.0))
                 .toolbar {
@@ -96,22 +117,7 @@ struct ContentView: View {
 
 
 
-                // 🔹 検索ボタンを画面右下に固定
-                Button(action: {
-                    withAnimation {
-                        isSearching.toggle()
-                        if !isSearching { searchText = "" }
-                    }
-                }) {
-                    Image(systemName: "magnifyingglass")
-                        .font(.system(size: 22))
-                        .foregroundColor(.white)
-                        .frame(width: 60, height: 60)
-                        .background(Color(red: 51/255, green: 51/255, blue: 51/255))
-                        .clipShape(Circle())
-                        .shadow(radius: 4)
-                        .padding()
-                }
+                
             }
             .alert("単語が見つかりません", isPresented: $isShowingAddWordAlert) {
                 Button("キャンセル", role: .cancel) {}
