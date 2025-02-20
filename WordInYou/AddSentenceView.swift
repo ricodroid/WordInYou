@@ -21,8 +21,7 @@ struct AddSentenceView: View {
         "lottie-anime6",
         "lottie-anime7",
         "lottie-anime8",
-        "lottie-anime9",
-        "lottie-anime10"
+        "lottie-anime9"
         
     ]
     @State private var selectedAnimation: String = UUID().uuidString
@@ -67,6 +66,7 @@ struct AddSentenceView: View {
                 DispatchQueue.main.async {
                     selectedAnimation = animationFiles.randomElement() ?? "lottie-anime1"
                     animationKey = UUID()
+                    print("めも: \(selectedAnimation)")
                 }
             }
 

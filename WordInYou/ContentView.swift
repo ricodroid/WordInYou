@@ -20,55 +20,45 @@ struct ContentView: View {
         "mini-logo1",
         "mini-logo2",
         "mini-logo3",
-        "mini-logo4"
+        "mini-logo4",
+        "mini-logo5"
     ]
     @State private var selectedMiniAnimation: String = UUID().uuidString
     @State private var miniAnimationKey = UUID()
 
     var body: some View {
         NavigationStack {
-            VStack {
-                if isSearching {
-                    TextField("Search...", text: $searchText, onCommit: {
-                        checkWordExists()
-                    })
-                    .padding(15)
-                    .frame(height: 50)
-                    .background(Color.white)
-                    .cornerRadius(10)
-                    .shadow(radius: 2)
-                    .padding(.horizontal, 16)
-                    .transition(.move(edge: .top))
-                }
-                
-                LottieView(filename: selectedMiniAnimation, loopMode: .loop)
-                    .id(miniAnimationKey)
-                    .frame(height: 35)
-                    .scaleEffect(0.15)
-                    .onAppear {
-                    DispatchQueue.main.async {
-                        selectedMiniAnimation = miniAnimationFiles.randomElement() ?? "mini-anime1"
-                        miniAnimationKey = UUID()
+            ZStack(alignment: .bottomTrailing) {
+                VStack {
+                    if isSearching {
+                        TextField("Search...", text: $searchText, onCommit: {
+                            checkWordExists()
+                        })
+                        .padding(15)
+                        .frame(height: 50)
+                        .background(Color.white)
+                        .cornerRadius(10)
+                        .shadow(radius: 2)
+                        .padding(.horizontal, 16)
+                        .transition(.move(edge: .top))
                     }
-                }
-                
-                Spacer()
+                    
+                    Spacer()
 
-                WordListView(searchText: $searchText)
-                    .onReceive(NotificationCenter.default.publisher(for: .showSentenceInput)) { notification in
-                        if let word = notification.object as? String {
-                            selectedWord = word
+                    WordListView(searchText: $searchText)
+                        .onReceive(NotificationCenter.default.publisher(for: .showSentenceInput)) { notification in
+                            if let word = notification.object as? String {
+                                selectedWord = word
+                            }
                         }
-                    }
-                    .sheet(isPresented: $isShowingAddSentence) {
-                        if let word = selectedWord {
-                            AddSentenceView(word: word)
-                                .environmentObject(wordStore)
+                        .sheet(isPresented: $isShowingAddSentence) {
+                            if let word = selectedWord {
+                                AddSentenceView(word: word)
+                                    .environmentObject(wordStore)
+                            }
                         }
-                    }
-                    .scrollContentBackground(.hidden)
-                
-                // 🔹 「Add New Word」ボタンを復元
+                        .scrollContentBackground(.hidden)
+                    
                     NavigationLink(destination: AddWordView()) {
                         Text("Add New Word")
                             .frame(maxWidth: .infinity)
@@ -78,25 +68,49 @@ struct ContentView: View {
                             .cornerRadius(10)
                             .padding()
                     }
-            }
-            .background(Color(red: 0.9, green: 0.95, blue: 1.0))
-            .navigationTitle("Word List")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        withAnimation {
-                            isSearching.toggle()
-                            if !isSearching { searchText = "" }
-                        }
-                    }) {
-                        Image(systemName: "magnifyingglass")
-                            .font(.system(size: 22))
-                            .foregroundColor(.white)
-                            .frame(width: 50, height: 70)
-                            .background(Color(red: 51/255, green: 51/255, blue: 51/255))
-                            .clipShape(RoundedRectangle(cornerRadius: 10))
-                            .shadow(radius: 4)
+                }
+                .background(Color(red: 0.9, green: 0.95, blue: 1.0))
+                .toolbar {
+
+                    ToolbarItem(placement: .navigationBarLeading) {
+                        Text("Word 2000")
+                            .font(.largeTitle)
+                            .fontWeight(.bold)
                     }
+
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        LottieView(filename: selectedMiniAnimation, loopMode: .loop)
+                            .id(miniAnimationKey)
+                            .frame(width: 30, height: 30)
+                            .scaleEffect(0.15)
+                            .padding(.trailing, 40)
+                            .onAppear {
+                                DispatchQueue.main.async {
+                                    selectedMiniAnimation = miniAnimationFiles.randomElement() ?? "mini-anime1"
+                                    miniAnimationKey = UUID()
+                                    print("タイトル: \(selectedMiniAnimation)") 
+                                }
+                            }
+                    }
+                }
+
+
+
+                // 🔹 検索ボタンを画面右下に固定
+                Button(action: {
+                    withAnimation {
+                        isSearching.toggle()
+                        if !isSearching { searchText = "" }
+                    }
+                }) {
+                    Image(systemName: "magnifyingglass")
+                        .font(.system(size: 22))
+                        .foregroundColor(.white)
+                        .frame(width: 60, height: 60)
+                        .background(Color(red: 51/255, green: 51/255, blue: 51/255))
+                        .clipShape(Circle())
+                        .shadow(radius: 4)
+                        .padding()
                 }
             }
             .alert("単語が見つかりません", isPresented: $isShowingAddWordAlert) {
@@ -110,7 +124,7 @@ struct ContentView: View {
             .navigationDestination(item: $newWord) { word in
                 AddWordView(prepopulatedWord: word)
             }
-            .navigationDestination(item: $selectedWord) { word in // 🔹 通知タップで遷移
+            .navigationDestination(item: $selectedWord) { word in
                 AddSentenceView(word: word)
             }
         }
@@ -119,7 +133,6 @@ struct ContentView: View {
         }
     }
 
-    // 🔹 通知からのデータをチェックし、遷移処理を実行
     private func checkForNotificationTap() {
         UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
             for notification in notifications {
@@ -131,8 +144,7 @@ struct ContentView: View {
             }
         }
     }
-    
-    // 🔹 userNotificationCenter(_:didReceive:withCompletionHandler:) の修正
+
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,
@@ -146,7 +158,6 @@ struct ContentView: View {
         completionHandler()
     }
 
-    // 🔹 単語が存在するかを確認し、見つからなかった場合にアラートを表示
     private func checkWordExists() {
         let wordExists = wordStore.combinedWords.contains { $0.word.lowercased() == searchText.lowercased() }
         if !wordExists {
