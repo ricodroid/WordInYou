@@ -15,6 +15,15 @@ struct ContentView: View {
     @State private var isSearching: Bool = false
     @State private var isShowingAddWordAlert = false
     @State private var newWord: String?
+    
+    let miniAnimationFiles = [
+        "mini-logo1",
+        "mini-logo2",
+        "mini-logo3",
+        "mini-logo4"
+    ]
+    @State private var selectedMiniAnimation: String = UUID().uuidString
+    @State private var miniAnimationKey = UUID()
 
     var body: some View {
         NavigationStack {
@@ -31,6 +40,19 @@ struct ContentView: View {
                     .padding(.horizontal, 16)
                     .transition(.move(edge: .top))
                 }
+                
+                LottieView(filename: selectedMiniAnimation, loopMode: .loop)
+                    .id(miniAnimationKey)
+                    .frame(height: 35)
+                    .scaleEffect(0.15)
+                    .onAppear {
+                    DispatchQueue.main.async {
+                        selectedMiniAnimation = miniAnimationFiles.randomElement() ?? "mini-anime1"
+                        miniAnimationKey = UUID()
+                    }
+                }
+                
+                Spacer()
 
                 WordListView(searchText: $searchText)
                     .onReceive(NotificationCenter.default.publisher(for: .showSentenceInput)) { notification in
@@ -51,7 +73,7 @@ struct ContentView: View {
                         Text("Add New Word")
                             .frame(maxWidth: .infinity)
                             .frame(height: 50)
-                            .background(Color.blue)
+                            .background(Color(red: 51/255, green: 51/255, blue: 51/255))
                             .foregroundColor(.white)
                             .cornerRadius(10)
                             .padding()
@@ -70,7 +92,7 @@ struct ContentView: View {
                         Image(systemName: "magnifyingglass")
                             .font(.system(size: 22))
                             .foregroundColor(.white)
-                            .frame(width: 50, height: 50)
+                            .frame(width: 50, height: 70)
                             .background(Color(red: 51/255, green: 51/255, blue: 51/255))
                             .clipShape(RoundedRectangle(cornerRadius: 10))
                             .shadow(radius: 4)
@@ -104,14 +126,13 @@ struct ContentView: View {
                 if let word = notification.request.content.userInfo["word"] as? String {
                     DispatchQueue.main.async {
                         selectedWord = word
-                        // 🔹 `navigationDestination` で直接遷移させるために `isShowingAddSentence` を使わない
                     }
                 }
             }
         }
     }
     
-    // 🔹 `userNotificationCenter(_:didReceive:withCompletionHandler:)` の修正
+    // 🔹 userNotificationCenter(_:didReceive:withCompletionHandler:) の修正
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
         didReceive response: UNNotificationResponse,

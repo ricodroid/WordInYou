@@ -25,7 +25,8 @@ struct AddSentenceView: View {
         "lottie-anime10"
         
     ]
-    @State private var selectedAnimation: String = ""
+    @State private var selectedAnimation: String = UUID().uuidString
+    @State private var animationKey = UUID()
 
     var body: some View {
         VStack {
@@ -59,13 +60,16 @@ struct AddSentenceView: View {
             Spacer()
 
             LottieView(filename: selectedAnimation, loopMode: .loop)
-                .frame(height: 20)
+                .id(animationKey)
+                .frame(height: 60)
                 .scaleEffect(0.4)
                 .onAppear {
+                DispatchQueue.main.async {
                     selectedAnimation = animationFiles.randomElement() ?? "lottie-anime1"
-                    print("Selected animation: \(selectedAnimation)")
+                    animationKey = UUID()
                 }
-            
+            }
+
             Spacer()
             
             HStack {

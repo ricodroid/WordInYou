@@ -14,7 +14,7 @@ struct LottieView: UIViewRepresentable {
 
     func makeUIView(context: Context) -> LottieAnimationView {
         let animationView = LottieAnimationView()
-        let animation = LottieAnimation.named(filename) // `.json` の拡張子なし
+        let animation = LottieAnimation.named(filename)
         animationView.animation = animation
         animationView.contentMode = .scaleAspectFit
         animationView.loopMode = loopMode
