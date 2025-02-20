@@ -129,21 +129,28 @@ struct ContentView: View {
             }
         }
         .onAppear {
-            checkForNotificationTap()
+            selectedWord = nil
+            UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+                checkForNotificationTap()
+            }
         }
     }
 
     private func checkForNotificationTap() {
         UNUserNotificationCenter.current().getDeliveredNotifications { notifications in
+            print("取得した通知数: \(notifications.count)")
             for notification in notifications {
                 if let word = notification.request.content.userInfo["word"] as? String {
                     DispatchQueue.main.async {
-                        selectedWord = word
+                        print("通知から取得した単語: \(word)")
+                        selectedWord = word // ここが問題！
                     }
                 }
             }
         }
     }
+
 
     func userNotificationCenter(
         _ center: UNUserNotificationCenter,
