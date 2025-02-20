@@ -9,16 +9,26 @@ import SwiftUI
 @main
 struct WordInYouApp: App {
     @StateObject var wordStore = WordStore()
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate // 🔹 AppDelegate をセット
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @State private var showSplash = true
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(wordStore)
-                .onAppear {
-                    NotificationManager.shared.requestPermission()
-                    NotificationManager.shared.scheduleRepeatedNotifications(wordStore: wordStore)
-                }
+            if showSplash {
+                SplashScreenView()
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                            showSplash = false
+                        }
+                    }
+            } else {
+                ContentView()
+                    .environmentObject(wordStore)
+                    .onAppear {
+                        NotificationManager.shared.requestPermission()
+                        NotificationManager.shared.scheduleRepeatedNotifications(wordStore: wordStore)
+                    }
+            }
         }
     }
 }

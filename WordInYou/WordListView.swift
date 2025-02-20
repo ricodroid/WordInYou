@@ -39,11 +39,12 @@ struct WordListView: View {
                                 NavigationLink(destination: AddSentenceView(word: word.word)) {
                                     EmptyView()
                                 }
-                                .opacity(0) // 🔹 非表示にする
+                                .opacity(0)
 
                                 VStack(alignment: .leading, spacing: 8) {
                                     Text(word.word)
                                         .font(.system(size: 22, weight: .bold))
+                                        .foregroundColor(Color(red: 51/255, green: 51/255, blue: 51/255))
                                         .frame(maxWidth: .infinity, alignment: .leading)
 
                                     if let sentence = word.sentence {
